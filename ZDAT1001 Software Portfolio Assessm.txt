@@ -1,0 +1,108 @@
+ZDAT1001 Software Portfolio Assessment Part 2
+Data Scientist Degree Apprenticeship, University of Nottingham.
+
+
+In the DATA1001 Introduction to Data Science teaching block, we explored anonymised Extenuating Circumstances (EC) data. Students may submit EC claims for sudden, unexpected issues beyond their control.
+
+As a data scientist, you are required to work with the dataset used to process EC claims and complete the following tasks:
+
+Design a relational database to manage the data effectively.
+Formulate analytical questions and use the data to generate insights through visualisations.
+Develop reproducible, high-quality software to extract and analyse the data.
+Submission Deadline: Wednesday, 22 April 2026, at 12:00 midday.
+
+You must use GitHub for this assessment. A private GitHub repository will be generated when you access the following GitHub Classroom link: GitHub Classroom
+
+If you would like to use work-based data or any other software that aligns better with your workplace for Part 2 of this assessment, please contact Adam Walker to discuss further. However, note that you will still have the opportunity to use work-based data in Part 3 of the assessment, where it is a requirement.
+
+Learning Outcomes to be Assessed
+This assessment will evaluate your ability to:
+
+Design and implement a relational database structure to manage and store data effectively, selecting appropriate tables, columns, and data types.
+
+Analyse and interpret data to answer key questions, applying suitable techniques and producing clear visual representations.
+
+Develop well-structured and maintainable software using best practices, ensuring clarity, functionality, and proper documentation.
+
+Use version control tools effectively, maintaining an organised repository, tracking changes, and following standard practices in collaborative software development.
+
+Write concise reports summarising findings, presenting data analysis, and justifying analytical decisions clearly.
+
+Apply critical thinking and problem-solving skills to define analytical questions, evaluate data trends, and justify methodological decisions.
+
+
+
+Task Description
+You are required to complete the following tasks using the provided dataset:
+
+1. Database Design & Implementation
+Design a suitable relational database structure.
+Define appropriate tables, columns, and data types.
+Implement data ingestion using Python and store the dataset in the database.
+Use SQL queries to manipulate the data (avoid working with the Excel file beyond initial ingestion).
+2. Data Analysis & Visualisation
+Identify at least two key questions to explore using data analysis.
+Implement reproducible and modular Python code (functions, classes, and scripts).
+Produce clear, well-labelled visualisations (at least one per question).
+Follow best practices for software development, including code structure, modularity, and documentation.
+Example Questions for Analysis
+(Refine these based on your Exploratory Data Analysis - EDA)
+
+Do EC claims increase as deadlines approach?
+Are there specific modules that generate more EC claims than others?
+How does the EC claim rate change over time?
+How does the response time for a claim vary over time?
+Note: To achieve a C-band grade or higher, you must introduce at least one additional question beyond the examples provided.
+
+3. Documentation & Reporting
+Maintain clear software documentation (README.md, docstrings, comments).
+Use Markdown (REPORT.md) for a concise 500-word report summarising findings.
+Incorporate visualisations and annotations to enhance clarity.
+4. GitHub Repository
+Use the [provided GitHub Classroom repository}(https://classroom.github.com/a/Kwd6MkV0) to manage your project.
+Ensure all files, code, reports, and documentation are committed to GitHub.
+Follow best practices for Git usage and version control.
+Project Structure
+When you register using the GitHub Classroom link, a template project will be created. You are free to organise the repository as you see fit, but the following best practices are recommended:
+
+Include two files at the top level: README.md and REPORT.md.
+README.md should outline your project structure and provide necessary documentation, e.g., instructions to run code.
+REPORT.md should contain the final report, including questions, write-up, and figures/tables.
+Use Markdown features like links to reference folder locations or other sources. You may use Jupyter Notebooks and Python files, ensuring reproducibility and clear documentation.
+
+Excluding Datasets from GitHub
+Exclude large datasets or sensitive data from GitHub repositories.
+Store datasets externally and reference them in your code.
+Use a .gitignore file in the root of your repository and include:
+/data
+This prevents Git from tracking large files such as CSVs.
+
+Submission Method
+Deadline: Wednesday, 22 April 2026, at 12:00 midday.
+
+This is Part 2 of the assessment.
+
+All work for Part 2 must be submitted via GitHub Classroom by the specified deadline. The final state of your repository at the deadline will be used for assessment.
+
+Your repository must contain:
+
+Python source code
+REPORT.md (final report)
+README.md (project documentation)
+Any supplemental files (e.g., data ingestion scripts, visualisations)
+Important: No separate Moodle submission is required for Part 2.
+
+Students who did not pass Part 1 must submit their Part 1 work via Moodle using the Moodle re-submission link.
+
+Feedback will be provided for any components that did not meet the required standard.
+
+Support
+For general clarifications, submit queries via the Question Box on Moodle.
+For unexpected difficulties affecting submission, consult your personal tutor regarding Extenuating Circumstances.
+Ensure compliance with the University of Nottingham Policy on Academic Misconduct. Contact assessment convenors if unsure.
+Marking Criteria
+Marks within each grade band are determined by how well the criteria are met. Feedback will clearly indicate the grade band achieved.
+
+Grade Band	Design, Documentation, and Implementation	Questions, Analyses, and Communication
+D	A GitHub repository is used to store all source code and documentation, including the required REPORT.md file. The README.md provides clear instructions on using the repository to create the database, populate tables, and generate visualisations. The software effectively implements the required tasks, such as breaking functionality into reusable functions and classes, with hard-coded variables placed sensibly. The code is free from major errors and demonstrates a clear overall design, though some areas may need improvement.	At least two appropriate questions are clearly stated for analysis. These questions provide valuable insights into the data for stakeholders, and the analyses address them effectively. The report includes well-written explanations alongside at least one relevant, high-quality visualisation per question. A sound understanding of the data and analyses is demonstrated. Communication is generally clear and coherent, although minor issues may arise, such as the choice of graphs or axis labelling. Explanations may be somewhat limited.
+C	In addition to the above, the project includes clear and relevant database and software design diagrams, supported by a well-reasoned justification of design decisions. The structure of the code, repository, database, and documentation is well-organised, demonstrating an excellent understanding and application of key concepts such as modularity, maintainability, and extensibility. Best practices are evident throughout, particularly in software development (e.g., Git usage) and data management (e.g., querying). The software produces reproducible results, and processes are automated to ensure ease of re-execution for generating plots included in the report. A normalised database with multiple suitable tables has been designed and utilised, with appropriate application of object-oriented principles within the code.	In addition to the above, multiple high-quality visualisations are generated, each relevant to the questions posed. These visualisations feature clear axis labels, titles, and appropriate tooling. They effectively present insights to stakeholders and link directly to the questions. A variety of graph types is used, with each carefully chosen to convey the intended message. A clear distinction is made between visualisations for exploratory data analysis (EDA) and those for stakeholder communication, with evidence of both types included. The accompanying explanations are clear, well-justified, and supported by the visualisations. The report thoroughly documents the processes used to answer the questions, demonstrating a deep understanding of the data and analyses in the broader context. The steps taken are consistently well-justified.
