@@ -1,0 +1,7 @@
+# Pinned versions are deliberately omitted to keep the file readable;
+# the project works with any reasonably recent release of each library.
+pandas
+openpyxl
+matplotlib
+seaborn
+jupyter
