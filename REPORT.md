@@ -69,17 +69,21 @@ sensitive to University holidays.
 
 ## Question 4 - Does claim outcome differ by type of assessment?
 
-A grouped count of `(type_of_assessment, outcome_category)` shown as
-two side-by-side panels - claim volume on the left, approval rate on
-the right.
+A grouped count of `(type_of_assessment, outcome_category)` plotted as
+two charts - claim volume first, then approval rate.
 
-![Q4 outcome by assessment type](img/q4_outcome_by_assessment_type.png)
+![Q4 volume](img/q4_volume_by_assessment_type.png)
 
-**Coursework** generates the most claims (n=906) but has the
-**lowest approval rate (88%)**. Examination claims are fewer (n=271)
-but approved 95% of the time, and the smaller categories almost
-always. The gap is consistent with coursework claims including more
-"extension requested" cases the Panel may treat as foreseeable.
+**Coursework** generates the most claims (n=906); examinations are
+distant second (n=271).
+
+![Q4 approval rate](img/q4_approval_rate_by_assessment_type.png)
+
+Coursework also has the **lowest approval rate (88%)**. Examination
+claims are approved 95% of the time and the smaller categories
+almost always. The gap is consistent with coursework claims
+including more "extension requested" cases the Panel may treat as
+foreseeable.
 
 ## Conclusion
 

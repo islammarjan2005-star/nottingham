@@ -2,89 +2,82 @@
 plots.py
 --------
 One plotting function per analytical question. Each function takes the
-DataFrame returned by the matching ``ECAnalyser`` method and writes a
-PNG into the ``img/`` directory.
-
-The plots are written to disk (rather than only being displayed) so
-that ``REPORT.md`` can embed them with relative-path Markdown links.
+DataFrame returned by analysis.py and saves a PNG into the img/
+folder. The PNGs are then linked from REPORT.md.
 """
 
-# Third-party imports.
+# matplotlib does the actual drawing.
 import matplotlib.pyplot as plt
+# seaborn gives nicer defaults and a few high-level chart types.
 import seaborn as sns
 
-# Project imports.
+# Use the IMG_DIR constant from config so we know where to save files.
 from config import IMG_DIR
 
-# A consistent visual style for the whole report.
-sns.set_theme(style="whitegrid", context="notebook")
+# Set a consistent visual style for every plot.
+sns.set_theme(style="whitegrid")
 
-# Stable colour mapping for the three outcome categories so the same
-# colour means the same thing across every plot.
+# A small dictionary so the same outcome category is the same colour
+# in every plot (green = approved, red = rejected, grey = other).
 OUTCOME_COLOURS = {
-    "Approved": "#3a7d44",   # green
-    "Rejected": "#c0392b",   # red
-    "Other":    "#888888",   # grey
-    "Unknown":  "#bdbdbd",   # light grey
+    "Approved": "#3a7d44",
+    "Rejected": "#c0392b",
+    "Other":    "#888888",
 }
 
 
-def _save(fig, filename):
-    """Save ``fig`` as a PNG into IMG_DIR and close it to free memory."""
-    # Make sure the output directory exists.
+def save_figure(fig, filename):
+    """Save fig as a PNG inside IMG_DIR and close it to free memory."""
+    # Make sure the img/ directory exists.
     IMG_DIR.mkdir(parents=True, exist_ok=True)
-    # Build the full path inside img/.
+    # Build the full path for the file.
     out_path = IMG_DIR / filename
-    # 150 dpi gives a sharp image without making the file enormous.
+    # 150 dpi gives a sharp picture without a huge file.
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    # Close so we don't leak memory if many plots are made.
     plt.close(fig)
     return out_path
 
 
 # ---------------------------------------------------------------------
-# Q1 plots: distribution of "days after deadline".
+# Q1 - timing of claims relative to the deadline.
 # ---------------------------------------------------------------------
+
 def plot_q1_histogram(df):
     """Histogram of how many days after the deadline a claim is filed."""
-    # Restrict the x-axis to a sensible window so a few extreme outliers
-    # do not flatten the bulk of the distribution.
-    clipped = df.copy()
-    clipped["days_after_deadline"] = clipped["days_after_deadline"].clip(-90, 90)
+    # Copy the DataFrame so we don't change the caller's version.
+    data = df.copy()
+    # Clip to a sensible window so a few extreme outliers don't squash
+    # the rest of the distribution.
+    data["days_after_deadline"] = data["days_after_deadline"].clip(-90, 90)
 
+    # Make a new figure.
     fig, ax = plt.subplots(figsize=(9, 5))
-    sns.histplot(
-        data=clipped,
-        x="days_after_deadline",
-        bins=40,
-        color="#2c7fb8",
-        edgecolor="white",
-        ax=ax,
-    )
-    # A vertical line at zero marks the deadline itself.
+    # Draw the histogram.
+    ax.hist(data["days_after_deadline"], bins=40,
+            color="#2c7fb8", edgecolor="white")
+    # Draw a dashed vertical line at zero (the deadline).
     ax.axvline(0, color="black", linestyle="--", linewidth=1)
+    # Add a title and axis labels.
     ax.set_title("Q1: Timing of EC claims relative to assessment deadline")
     ax.set_xlabel("Days between submission and assessment date "
                   "(negative = before deadline)")
     ax.set_ylabel("Number of claims")
-    ax.text(
-        0.99, 0.97,
-        "Source: anonymised EC dataset 2020/21",
-        transform=ax.transAxes, ha="right", va="top",
-        fontsize=8, color="#555",
-    )
-    return _save(fig, "q1_claims_vs_deadline_hist.png")
+    return save_figure(fig, "q1_claims_vs_deadline_hist.png")
 
 
 def plot_q1_boxplot(df):
     """Box plot of the same metric, split by outcome category."""
-    clipped = df.copy()
-    clipped["days_after_deadline"] = clipped["days_after_deadline"].clip(-90, 90)
-    # Restrict to the two categories that drive the question.
-    clipped = clipped[clipped["outcome_category"].isin(["Approved", "Rejected"])]
+    # Copy and clip as before.
+    data = df.copy()
+    data["days_after_deadline"] = data["days_after_deadline"].clip(-90, 90)
+    # Keep only Approved / Rejected so the comparison is clear.
+    data = data[data["outcome_category"].isin(["Approved", "Rejected"])]
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
+    # seaborn boxplot is a one-liner.
     sns.boxplot(
-        data=clipped,
+        data=data,
         x="days_after_deadline",
         y="outcome_category",
         hue="outcome_category",
@@ -96,162 +89,199 @@ def plot_q1_boxplot(df):
     ax.set_title("Q1: Submission timing by outcome (approved vs rejected)")
     ax.set_xlabel("Days between submission and assessment date")
     ax.set_ylabel("Outcome category")
-    return _save(fig, "q1_claims_vs_deadline_box.png")
+    return save_figure(fig, "q1_claims_vs_deadline_box.png")
 
 
 # ---------------------------------------------------------------------
-# Q2 plot: top modules by claim count, stacked by outcome.
+# Q2 - top modules by claim count, stacked by outcome.
 # ---------------------------------------------------------------------
+
 def plot_q2_top_modules(df):
     """Horizontal stacked bar chart of the top modules by claim count."""
-    # Pivot from long format to wide so each outcome category becomes a
-    # column, which is what matplotlib's stacked bar wants.
-    wide = (
-        df.pivot_table(
-            index="module_code",
-            columns="outcome_category",
-            values="claim_count",
-            fill_value=0,
-        )
-        .assign(total=lambda d: d.sum(axis=1))
-        .sort_values("total", ascending=True)   # ascending so largest is at top
-        .drop(columns="total")
+    # We need one row per module, with one column per outcome category.
+    # The pivot_table call below does that. We default missing values
+    # to zero (a module with no rejected claims gets a 0 in that column).
+    wide = df.pivot_table(
+        index="module_code",
+        columns="outcome_category",
+        values="claim_count",
+        fill_value=0,
     )
+    # Add a 'total' column and sort smallest-to-largest, so when we
+    # plot horizontally the biggest bar appears at the top.
+    wide["total"] = wide.sum(axis=1)
+    wide = wide.sort_values("total", ascending=True)
+    wide = wide.drop(columns="total")
 
-    # Order the outcome columns so the legend reads Approved -> Other.
-    column_order = [c for c in ("Approved", "Rejected", "Other", "Unknown")
-                    if c in wide.columns]
+    # Decide which order the outcome columns appear in (Approved first).
+    column_order = []
+    for cat in ["Approved", "Rejected", "Other"]:
+        if cat in wide.columns:
+            column_order.append(cat)
     wide = wide[column_order]
 
+    # Build the colour list in the same order as the columns.
+    colours = []
+    for cat in column_order:
+        colours.append(OUTCOME_COLOURS[cat])
+
+    # Draw the stacked bar chart.
     fig, ax = plt.subplots(figsize=(9, 6))
     wide.plot(
         kind="barh",
         stacked=True,
         ax=ax,
-        color=[OUTCOME_COLOURS[c] for c in column_order],
+        color=colours,
         edgecolor="white",
     )
     ax.set_title("Q2: Top 15 modules by EC claim count")
     ax.set_xlabel("Number of EC claims")
     ax.set_ylabel("Module code")
     ax.legend(title="Outcome", loc="lower right")
-    return _save(fig, "q2_top_modules.png")
+    return save_figure(fig, "q2_top_modules.png")
 
 
 # ---------------------------------------------------------------------
-# Q3 plot: monthly response time.
+# Q3 - monthly response time.
 # ---------------------------------------------------------------------
+
 def plot_q3_response_time(df):
-    """Box plot of Panel response time per month-of-submission."""
-    # Cap the response time at 90 days so a few stragglers do not stretch
-    # the y-axis into uselessness.
-    clipped = df.copy()
-    clipped = clipped[clipped["response_days"].between(0, 90)]
+    """Box plot of response time per month, with a median line."""
+    # Drop rows with extreme response times so the y-axis stays sensible.
+    data = df[(df["response_days"] >= 0) & (df["response_days"] <= 90)]
 
     fig, ax = plt.subplots(figsize=(11, 5))
+    # Box plot per month.
     sns.boxplot(
-        data=clipped,
+        data=data,
         x="posted_month",
         y="response_days",
         color="#74a9cf",
         ax=ax,
     )
-    # Overlay the median with a connecting line so the trend is obvious.
-    medians = clipped.groupby("posted_month")["response_days"].median()
+    # Compute the median per month and draw it as a line on top.
+    medians = data.groupby("posted_month")["response_days"].median()
     ax.plot(
-        range(len(medians)), medians.values,
-        color="#08306b", marker="o", linewidth=2, label="Monthly median",
+        range(len(medians)),
+        medians.values,
+        color="#08306b",
+        marker="o",
+        linewidth=2,
+        label="Monthly median",
     )
     ax.set_title("Q3: Panel response time by month of submission")
     ax.set_xlabel("Month claim was posted (YYYY-MM)")
     ax.set_ylabel("Days from submission to Panel approval")
     ax.tick_params(axis="x", rotation=45)
     ax.legend(loc="upper right")
-    return _save(fig, "q3_response_time_monthly.png")
+    return save_figure(fig, "q3_response_time_monthly.png")
 
 
 # ---------------------------------------------------------------------
-# Q4 plot: approval rate by level / finalist.
+# Q4 - outcome by type of assessment.
+# We make TWO plots here so the report has two angles on the same data:
+#   * a stacked bar showing volume of claims per assessment type
+#   * a simple bar showing the approval percentage per assessment type
 # ---------------------------------------------------------------------
-def plot_q4_outcome_by_assessment_type(df):
-    """Side-by-side view: claim volume + approval rate by assessment type.
 
-    The left panel is a stacked bar of total claim volume so the reader
-    sees how dominant Coursework is. The right panel is the approval
-    percentage so the reader can compare like-for-like rates.
-    """
-    # Pivot so each assessment type has one row and outcome categories
-    # become columns.
-    wide = (
-        df.pivot_table(
-            index="type_of_assessment",
-            columns="outcome_category",
-            values="claim_count",
-            fill_value=0,
-        )
-        .assign(total=lambda d: d.sum(axis=1))
-        .sort_values("total", ascending=False)
+def plot_q4_volume(df):
+    """Stacked bar of claim volume per assessment type."""
+    # Pivot to one row per assessment type, one column per outcome.
+    wide = df.pivot_table(
+        index="type_of_assessment",
+        columns="outcome_category",
+        values="claim_count",
+        fill_value=0,
     )
-    # Order the outcome columns consistently across the panels.
-    column_order = [c for c in ("Approved", "Rejected", "Other", "Unknown")
-                    if c in wide.columns]
+    # Sort so the biggest assessment type is on the left.
+    wide["total"] = wide.sum(axis=1)
+    wide = wide.sort_values("total", ascending=False)
+    wide = wide.drop(columns="total")
+
+    # Same colour ordering as Q2.
+    column_order = []
+    for cat in ["Approved", "Rejected", "Other"]:
+        if cat in wide.columns:
+            column_order.append(cat)
+    wide = wide[column_order]
     colours = [OUTCOME_COLOURS[c] for c in column_order]
 
-    # Compute approval rate (% of considered = approved + rejected).
-    considered = wide[[c for c in ("Approved", "Rejected") if c in wide.columns]]
-    approval_pct = (considered.get("Approved", 0)
-                    / considered.sum(axis=1).replace(0, 1)) * 100
-
-    # Two side-by-side panels.
-    fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(12, 5))
-
-    # ---- Left: stacked bar of claim volume ---------------------------
-    wide[column_order].plot(
-        kind="bar", stacked=True, ax=ax_left,
-        color=colours, edgecolor="white",
+    fig, ax = plt.subplots(figsize=(9, 5))
+    wide.plot(
+        kind="bar",
+        stacked=True,
+        ax=ax,
+        color=colours,
+        edgecolor="white",
     )
-    ax_left.set_title("Claim volume by assessment type")
-    ax_left.set_xlabel("")
-    ax_left.set_ylabel("Number of claims")
-    ax_left.legend(title="Outcome", loc="upper right")
-    ax_left.tick_params(axis="x", rotation=30)
+    ax.set_title("Q4a: EC claim volume by type of assessment")
+    ax.set_xlabel("")
+    ax.set_ylabel("Number of claims")
+    ax.legend(title="Outcome", loc="upper right")
+    ax.tick_params(axis="x", rotation=30)
+    return save_figure(fig, "q4_volume_by_assessment_type.png")
 
-    # ---- Right: approval rate bar ------------------------------------
+
+def plot_q4_approval_rate(df):
+    """Simple bar of approval percentage per assessment type."""
+    # Build a wide table and compute approval %.
+    wide = df.pivot_table(
+        index="type_of_assessment",
+        columns="outcome_category",
+        values="claim_count",
+        fill_value=0,
+    )
+    # Approval rate = approved / (approved + rejected). We ignore "Other"
+    # (claims that were never considered) so the rate is comparable.
+    approved = wide.get("Approved", 0)
+    rejected = wide.get("Rejected", 0)
+    considered = approved + rejected
+    # Replace zero denominators with 1 so we don't divide by zero.
+    safe_denom = considered.replace(0, 1)
+    approval_pct = (approved / safe_denom) * 100
+
+    # Build a small DataFrame for plotting.
+    plot_df = approval_pct.reset_index()
+    plot_df.columns = ["type_of_assessment", "approval_pct"]
+    plot_df["n_considered"] = considered.values
+    # Sort so the biggest assessment type is on the left.
+    plot_df = plot_df.sort_values("n_considered", ascending=False)
+
+    fig, ax = plt.subplots(figsize=(9, 5))
     sns.barplot(
-        x=approval_pct.index,
-        y=approval_pct.values,
-        hue=approval_pct.index,
+        data=plot_df,
+        x="type_of_assessment",
+        y="approval_pct",
+        hue="type_of_assessment",
         palette="Blues_d",
         legend=False,
-        ax=ax_right,
+        ax=ax,
     )
-    for i, (label, pct) in enumerate(approval_pct.items()):
-        n_considered = int(considered.loc[label].sum())
-        ax_right.text(
-            i, pct + 1, f"{pct:.0f}%\n(n={n_considered})",
-            ha="center", va="bottom", fontsize=8,
-        )
-    ax_right.set_ylim(0, 115)
-    ax_right.set_title("Approval rate by assessment type")
-    ax_right.set_xlabel("")
-    ax_right.set_ylabel("Approved as % of considered")
-    ax_right.tick_params(axis="x", rotation=30)
-
-    fig.suptitle("Q4: Outcome of EC claims by type of assessment",
-                 fontsize=13, y=1.02)
-    return _save(fig, "q4_outcome_by_assessment_type.png")
+    # Write the percentage and the sample size on top of each bar.
+    for i in range(len(plot_df)):
+        pct = plot_df["approval_pct"].iloc[i]
+        n = int(plot_df["n_considered"].iloc[i])
+        ax.text(i, pct + 1, f"{pct:.0f}%\n(n={n})",
+                ha="center", va="bottom", fontsize=8)
+    ax.set_ylim(0, 115)
+    ax.set_title("Q4b: Approval rate by type of assessment")
+    ax.set_xlabel("")
+    ax.set_ylabel("Approved as % of considered")
+    ax.tick_params(axis="x", rotation=30)
+    return save_figure(fig, "q4_approval_rate_by_assessment_type.png")
 
 
 # ---------------------------------------------------------------------
 # Convenience: produce every plot in one call.
 # ---------------------------------------------------------------------
+
 def plot_all(results):
-    """Take the dict returned by ECAnalyser.run_all() and save all PNGs."""
-    paths = [
-        plot_q1_histogram(results["q1"]),
-        plot_q1_boxplot(results["q1"]),
-        plot_q2_top_modules(results["q2"]),
-        plot_q3_response_time(results["q3"]),
-        plot_q4_outcome_by_assessment_type(results["q4"]),
-    ]
+    """Take the dict from ECAnalyser.run_all() and save every plot."""
+    paths = []
+    paths.append(plot_q1_histogram(results["q1"]))
+    paths.append(plot_q1_boxplot(results["q1"]))
+    paths.append(plot_q2_top_modules(results["q2"]))
+    paths.append(plot_q3_response_time(results["q3"]))
+    paths.append(plot_q4_volume(results["q4"]))
+    paths.append(plot_q4_approval_rate(results["q4"]))
     return paths

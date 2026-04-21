@@ -43,7 +43,8 @@ nottingham/
 |   |-- q1_claims_vs_deadline_box.png
 |   |-- q2_top_modules.png
 |   |-- q3_response_time_monthly.png
-|   '-- q4_outcome_by_assessment_type.png
+|   |-- q4_volume_by_assessment_type.png
+|   '-- q4_approval_rate_by_assessment_type.png
 |-- src/
 |   |-- README.md
 |   |-- requirements.txt

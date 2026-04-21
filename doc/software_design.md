@@ -11,22 +11,21 @@ can open `src/main.py` and trace the whole pipeline in five minutes.
 ```mermaid
 classDiagram
     class Database {
-        +Path db_path
+        +str db_path
         +sqlite3.Connection conn
         +connect()
         +close()
-        +run_schema(path)
+        +run_schema(schema_path)
         +executemany(sql, rows)
         +read_sql(sql, params) DataFrame
-        +scalar(sql, params)
+        +scalar(sql)
     }
 
     class DataIngestor {
-        +Path xlsx_path
-        +Workbook workbook
-        +DataFrame raw_claims
-        +load_workbook()
-        +build_raw_claims_dataframe()
+        +str xlsx_path
+        +list rows
+        +load_rows()
+        +build_records()
         +populate(db: Database)
         +run(db: Database)
     }
@@ -34,7 +33,7 @@ classDiagram
     class ECAnalyser {
         +Database db
         +q1_days_before_deadline() DataFrame
-        +q2_top_modules(top_n) DataFrame
+        +q2_top_modules() DataFrame
         +q3_response_time_by_month() DataFrame
         +q4_outcome_by_assessment_type() DataFrame
         +run_all() dict
@@ -46,7 +45,8 @@ classDiagram
         +plot_q1_boxplot(df)
         +plot_q2_top_modules(df)
         +plot_q3_response_time(df)
-        +plot_q4_outcome_by_assessment_type(df)
+        +plot_q4_volume(df)
+        +plot_q4_approval_rate(df)
         +plot_all(results) list
     }
 
@@ -85,8 +85,8 @@ flowchart LR
 |--------|----------------|-------|
 | `config.py` | Hard-coded paths, sheet names and the outcome-category map. | Single place to change if the file moves or the codes change. |
 | `schema.sql` | Defines every table, foreign key and index. | Re-runnable - starts with `DROP TABLE IF EXISTS`. |
-| `database.py` | Tiny `sqlite3` wrapper. Supports `with` blocks. | No ORM - we want plain SQL on display. |
-| `ingest.py` | Reads the workbook with `openpyxl`, builds tidy DataFrames, writes them in dependency order. | Per the brief, this is the only module that touches the spreadsheet. |
+| `database.py` | Tiny `sqlite3` wrapper. Just `connect`, `close`, `run_schema`, `executemany`, `read_sql`, `scalar`. | No ORM - we want plain SQL on display. |
+| `ingest.py` | Reads the workbook with `openpyxl` row-by-row, builds plain Python dictionaries / lists, then writes them in dependency order. | Per the brief, this is the only module that touches the spreadsheet. |
 | `analysis.py` | One method per analytical question. Each returns a pandas DataFrame from a single SQL statement. | Methods are short and named after what they answer. |
 | `plots.py` | One function per question. Each takes the DataFrame from `analysis.py` and saves a PNG into `img/`. | Consistent colour scheme via `OUTCOME_COLOURS`. |
 | `main.py` | Glue: parse CLI flags, build the DB, run analyses, save plots, print summary. | Entry point. |

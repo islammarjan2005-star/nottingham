@@ -19,7 +19,9 @@ file is missing, re-run the pipeline.
   the most EC claims, coloured by outcome category.
 - `q3_response_time_monthly.png` — Q3 monthly box plot of Panel response
   time (days from posting to approval) over the academic year.
-- `q4_outcome_by_level.png` — Q4 grouped bar chart of approval rate by
-  student level and finalist status.
+- `q4_volume_by_assessment_type.png` — Q4a stacked bar of claim volume
+  per type of assessment, coloured by outcome.
+- `q4_approval_rate_by_assessment_type.png` — Q4b approval percentage
+  per type of assessment.
 - `er_diagram.png` — optional static render of the database ER diagram
   (the live Mermaid version lives in `doc/database_design.md`).
