@@ -1,9 +1,9 @@
 # Report - Extenuating Circumstances Claims (2020/21)
 
-- **Student Name**: <!-- TODO: fill in -->
-- **Student ID**: <!-- TODO: fill in -->
-- **Student Email**: <!-- TODO: fill in -->
-- **Student GitHub Username**: <!-- TODO: fill in -->
+- **Student Name**: Marzanul Islam
+- **Student ID**: 20646593
+- **Student Email**: leymi7@nottingham.ac.uk
+- **Student GitHub Username**: MarjanNottingham
 
 ## Contents
 
