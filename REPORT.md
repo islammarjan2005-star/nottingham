@@ -78,7 +78,7 @@ Coursework also has the lowest approval rate. The numbers:
 | In class assessment | 24           | 24       | 100%       |
 | Presentation       | 11           | 10       | 91%        |
 
-This is probably because coursework claims often involve extension
+This is perhaps because coursework claims often involve extension
 requests, which the Panel sometimes decides were foreseeable.
 
 ## Conclusion
@@ -93,7 +93,7 @@ Three things stand out:
 
 If the University wanted to reduce the EC workload, the main area
 to target would be coursework in the busiest modules in the week
-before a deadline - clearer communication, staggering the
+before a deadline, meaning clearer communication, staggering the
 deadlines, or short automatic extensions for low-risk cases.
 Dissertation and Placement each only had one considered claim in
-this dataset, so I would not read much into those approval rates.
+this dataset, so I would be cautious around analysis of those approval rates.
