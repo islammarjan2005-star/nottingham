@@ -2,21 +2,21 @@
 
 ## Overview
 
-The source data arrives as a single Excel sheet (`EC Claims 20-21`) with
-43 columns and one row per (form, module) pair. Storing it like that in
-a database would mean repeating the same student details, course name
-and outcome description thousands of times. Instead the data is split
-into **six normalised tables** so that each fact is recorded once.
+The source data is a single Excel sheet (`EC Claims 20-21`) with 43
+columns and one row per (form, module) pair. Loading that straight
+into one giant table would mean repeating the same student details,
+course name and outcome description thousands of times, so instead I
+split it into six tables with foreign keys between them.
 
-## Entity-Relationship diagram
+## ER diagram
 
 ```mermaid
 erDiagram
-    courses        ||--o{ students    : "is enrolled on"
-    students       ||--o{ claims      : "submits"
-    modules        ||--o{ claims      : "is target of"
-    outcomes       ||--o{ claims      : "categorises"
-    claims         }|--|| claim_updates : "has admin trail"
+    courses     ||--o{ students      : "is enrolled on"
+    students    ||--o{ claims        : "submits"
+    modules     ||--o{ claims        : "is target of"
+    outcomes    ||--o{ claims        : "categorises"
+    claims      }|--|| claim_updates : "has admin trail"
 
     courses {
         int  course_id PK
@@ -73,42 +73,40 @@ erDiagram
     }
 ```
 
-## Table-by-table justification
+## Why each table is separate
 
-| Table | Why it is separate |
-|-------|--------------------|
-| `courses` | Course names are long strings (`"Postgraduate Entry to Medicine BMBS Course "` etc.) and would otherwise be duplicated in every student row. A surrogate `course_id` keeps `students` narrow. |
-| `students` | A single anonymised student often submits several claims, so their `level_of_student`, `finalist` and `distance_learner` flags belong on the student, not the claim. |
-| `modules` | Module title is associated with the module, not with each claim. |
-| `outcomes` | The 10 distinct Quality Manual codes (A-H plus a few numeric codes) come from the workbook's `Data validation` sheet. Storing them in their own dimension lets the SQL `JOIN` to a stable `category` column (`Approved`/`Rejected`/`Other`) without repeating the bucketing logic in every query. |
-| `claims` | The fact table - one row per (form, module) pair. PostID is **not** unique because one form often lists several affected modules, so the table uses a surrogate integer PK and keeps `claim_id` as a non-unique foreign-key-like field. |
-| `claim_updates` | The administrative timeline columns (Campus updated, Moodle updated, previous notification dates) belong to the **form**, not to each module-row. Deduplicating them here keeps the fact table focused on claim attributes. |
+- **courses** - course names are long strings, so I stored them once
+  with a surrogate integer `course_id` and pointed each student at
+  their course.
+- **students** - one student often submits several claims, and their
+  attributes (level, finalist, distance learner, visa) are properties
+  of the student, not of each claim, so they belong here.
+- **modules** - module code and title go together, one row per module.
+- **outcomes** - the "Outcome" column in the spreadsheet uses codes A
+  to H plus a few numeric codes. I kept them in their own lookup table
+  so the analytical SQL can just JOIN on the code and pick up both the
+  description and a simpler `category` (Approved / Rejected / Other).
+- **claims** - the main table, one row per (form, module). PostID is
+  not unique (a single form can list multiple modules), so I used an
+  auto-incrementing `claim_row_id` as the primary key and kept
+  `claim_id` as a non-unique column.
+- **claim_updates** - the admin-trail dates (Campus updated, Moodle
+  updated, previous notifications) belong to the whole form, not each
+  module row, so I split them out.
 
 ## Data-type choices
 
-* All identifiers (`student_id`, `module_code`, `claim_id`) are stored as
-  `TEXT` because they are not numeric (e.g. `FRM00712`, `COMP4031`).
-* All dates are stored as ISO date strings (`YYYY-MM-DD`). SQLite has no
-  native date type, but ISO dates sort lexicographically and are
-  understood by `julianday()` / `strftime()`, which is everything Q1-Q4
-  need.
-* The `category` column on `outcomes` is denormalised on purpose: it
-  could be derived from `outcome_code` via a `CASE` expression but
-  storing it directly keeps the analytical SQL short and readable.
+- Identifiers (`student_id`, `module_code`, `claim_id`) are `TEXT`
+  because they aren't numbers (e.g. `FRM00712`, `COMP4031`).
+- Dates are stored as ISO text (`YYYY-MM-DD`). SQLite doesn't have a
+  real date type, but ISO dates sort correctly and `julianday()` /
+  `strftime()` can still work with them.
+- `outcomes.category` duplicates information that could be derived
+  from `outcome_code`, but storing it saves a `CASE WHEN` in every
+  analytical query.
 
-## Normal-form check
+## Running the schema
 
-* **1NF** - every column holds a single atomic value (multi-value
-  reasons in the source are kept as the original free-text string in
-  `form_reason`).
-* **2NF** - non-key attributes depend on the whole key in every table.
-* **3NF** - course name lives only in `courses`; module title only in
-  `modules`; outcome description only in `outcomes`. No transitive
-  dependencies remain in `claims`.
-
-## How the schema is built
-
-The schema lives in [`src/schema.sql`](../src/schema.sql) and is run via
-`Database.run_schema()` (see [`src/database.py`](../src/database.py)).
-The script begins with `DROP TABLE IF EXISTS` for every table, so
-re-running `python src/main.py` always produces a clean DB.
+The schema is in [`src/schema.sql`](../src/schema.sql) and is loaded
+by `Database.run_schema()`. The script drops every table first so the
+whole pipeline can be re-run without errors.

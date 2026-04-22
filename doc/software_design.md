@@ -2,11 +2,10 @@
 
 ## Overview
 
-The codebase is small and deliberately flat - one module per
-responsibility, no nested packages. The intent is that a new reader
-can open `src/main.py` and trace the whole pipeline in five minutes.
+The code is split across a few small files, one per job. Anyone who
+opens `src/main.py` can follow the whole pipeline end to end.
 
-## Module / class diagram
+## Class diagram
 
 ```mermaid
 classDiagram
@@ -23,11 +22,16 @@ classDiagram
 
     class DataIngestor {
         +str xlsx_path
-        +list rows
-        +load_rows()
+        +set courses
+        +dict modules
+        +dict students
+        +dict outcomes
+        +list claims
+        +dict updates
+        +load_rows() list
         +build_records()
-        +populate(db: Database)
-        +run(db: Database)
+        +populate(db)
+        +run(db)
     }
 
     class ECAnalyser {
@@ -58,57 +62,44 @@ classDiagram
         +main()
     }
 
-    main ..> Database : uses
-    main ..> DataIngestor : uses
-    main ..> ECAnalyser : uses
-    main ..> plots : uses
-    DataIngestor ..> Database : populates
-    ECAnalyser ..> Database : queries
-    plots ..> ECAnalyser : consumes DataFrames
+    main ..> Database
+    main ..> DataIngestor
+    main ..> ECAnalyser
+    main ..> plots
+    DataIngestor ..> Database
+    ECAnalyser ..> Database
 ```
 
-## End-to-end pipeline
+## Pipeline
 
 ```mermaid
 flowchart LR
-    A([Excel<br/>workbook]) --> B[DataIngestor<br/>load + clean]
+    A([Excel workbook]) --> B[DataIngestor]
     B --> C[(SQLite<br/>ec_claims.db)]
     C --> D[ECAnalyser<br/>SQL queries]
-    D --> E[plots module<br/>matplotlib + seaborn]
+    D --> E[plots module]
     E --> F([img/*.png])
     F --> G([REPORT.md])
 ```
 
-## Responsibilities
+## What each file does
 
-| Module | Responsibility | Notes |
-|--------|----------------|-------|
-| `config.py` | Hard-coded paths, sheet names and the outcome-category map. | Single place to change if the file moves or the codes change. |
-| `schema.sql` | Defines every table, foreign key and index. | Re-runnable - starts with `DROP TABLE IF EXISTS`. |
-| `database.py` | Tiny `sqlite3` wrapper. Just `connect`, `close`, `run_schema`, `executemany`, `read_sql`, `scalar`. | No ORM - we want plain SQL on display. |
-| `ingest.py` | Reads the workbook with `openpyxl` row-by-row, builds plain Python dictionaries / lists, then writes them in dependency order. | Per the brief, this is the only module that touches the spreadsheet. |
-| `analysis.py` | One method per analytical question. Each returns a pandas DataFrame from a single SQL statement. | Methods are short and named after what they answer. |
-| `plots.py` | One function per question. Each takes the DataFrame from `analysis.py` and saves a PNG into `img/`. | Consistent colour scheme via `OUTCOME_COLOURS`. |
-| `main.py` | Glue: parse CLI flags, build the DB, run analyses, save plots, print summary. | Entry point. |
-| `eda.ipynb` | Exploratory notebook used to shape the questions. Plots are deliberately rough. | Demonstrates the EDA-vs-stakeholder split required for the C-band. |
+- `config.py` - paths, sheet names and the outcome-category map in one
+  place so they're easy to find.
+- `schema.sql` - CREATE TABLE statements for all 6 tables. Drops
+  everything first so it can be re-run.
+- `database.py` - small sqlite3 wrapper class (connect, close,
+  run_schema, executemany, read_sql, scalar).
+- `ingest.py` - reads the xlsx once, builds Python dicts/lists, writes
+  them into the database. Nothing else touches the spreadsheet.
+- `analysis.py` - one method per question, each returning a DataFrame.
+- `plots.py` - one plotting function per chart, saving PNGs into img/.
+- `main.py` - entry point: parse flags, build the DB, save the plots.
+- `eda.ipynb` - exploratory notebook with rough plots that helped me
+  pick the questions for the report.
 
-## Reproducibility & extensibility
+## Reproducibility
 
-* `python src/main.py` rebuilds the DB and regenerates every plot in
-  `img/` from scratch. The report's images therefore always reflect
-  the current data and the current code.
-* Adding a new analytical question requires (a) a new method on
-  `ECAnalyser`, (b) a new function in `plots.py`, and (c) one line in
-  `plot_all()`. No other file changes.
-* Switching to a different SQL backend would only need a different
-  `Database` implementation - the rest of the code talks SQL strings.
-
-## What we deliberately did **not** add
-
-* No ORM, no dependency-injection container, no decorators - the
-  problem is small enough that adding those would obscure the data
-  flow rather than help it.
-* No CLI framework beyond `argparse` for the same reason.
-* No unit-test suite (the brief does not require one). The notebook
-  acts as a manual smoke-test alongside the printed counts in
-  `main.py`.
+Running `python src/main.py` from the project root rebuilds the
+database and regenerates every image in `img/`. The report can then
+be read on GitHub and every plot shows the latest version of the data.
