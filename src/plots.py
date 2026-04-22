@@ -151,36 +151,40 @@ def plot_q4_volume(df):
 
 
 def plot_q4_approval_rate(df):
-    """Q4b - approval % for each type of assessment."""
-    wide = df.pivot_table(
-        index="type_of_assessment",
-        columns="outcome_category",
-        values="claim_count",
-        fill_value=0,
-    )
-    # Approval rate ignores "Other" (not considered at all).
-    approved = wide.get("Approved", 0)
-    rejected = wide.get("Rejected", 0)
-    considered = approved + rejected
-    safe_denom = considered.replace(0, 1)
-    approval_pct = (approved / safe_denom) * 100
+    """Bar chart of the approval rate for each type of assessment."""
+    # Work out approval % per assessment type using plain Python on the
+    # DataFrame rather than a pivot_table trick.
+    types = sorted(df["type_of_assessment"].unique())
+    labels = []
+    percents = []
+    counts = []
+    for t in types:
+        approved = 0
+        rejected = 0
+        sub = df[df["type_of_assessment"] == t]
+        for _, row in sub.iterrows():
+            if row["outcome_category"] == "Approved":
+                approved += int(row["claim_count"])
+            elif row["outcome_category"] == "Rejected":
+                rejected += int(row["claim_count"])
+        considered = approved + rejected
+        if considered == 0:
+            continue
+        labels.append(t)
+        percents.append(100 * approved / considered)
+        counts.append(considered)
 
-    plot_df = approval_pct.reset_index()
-    plot_df.columns = ["type_of_assessment", "approval_pct"]
-    plot_df["n_considered"] = considered.values
-    plot_df = plot_df.sort_values("n_considered", ascending=False)
+    # Sort biggest-first by sample size.
+    order = sorted(range(len(labels)), key=lambda i: counts[i], reverse=True)
+    labels = [labels[i] for i in order]
+    percents = [percents[i] for i in order]
+    counts = [counts[i] for i in order]
 
     fig, ax = plt.subplots(figsize=(9, 5))
-    sns.barplot(
-        data=plot_df, x="type_of_assessment", y="approval_pct",
-        hue="type_of_assessment", palette="Blues_d",
-        legend=False, ax=ax,
-    )
-    # Label each bar with the % and the sample size.
-    for i in range(len(plot_df)):
-        pct = plot_df["approval_pct"].iloc[i]
-        n = int(plot_df["n_considered"].iloc[i])
-        ax.text(i, pct + 1, f"{pct:.0f}%\n(n={n})",
+    ax.bar(labels, percents, color="#5e81ac", edgecolor="white")
+    for i in range(len(labels)):
+        ax.text(i, percents[i] + 1,
+                f"{percents[i]:.0f}%\n(n={counts[i]})",
                 ha="center", va="bottom", fontsize=8)
     ax.set_ylim(0, 115)
     ax.set_title("Q4b: Approval rate by type of assessment")

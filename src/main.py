@@ -1,10 +1,9 @@
 """
-main.py - run the whole pipeline.
+Runs the whole pipeline end to end.
 
-Usage (from the project root):
-    python src/main.py              # rebuild DB and regenerate plots
-    python src/main.py --skip-db    # just redo the plots
-    python src/main.py --skip-plots # just load the data
+From the project root:
+    python src/main.py
+Use --skip-db to only redo the plots, or --skip-plots to only load data.
 """
 
 import argparse
