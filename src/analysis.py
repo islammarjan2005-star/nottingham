@@ -1,8 +1,8 @@
 """
-SQL queries for the four assessment questions.
+SQL queries for the four questions.
 
 Each method on ECAnalyser runs one SELECT and returns a pandas
-DataFrame so plots.py can draw it straight away.
+DataFrame so plots.py can draw it.
 """
 
 import pandas as pd

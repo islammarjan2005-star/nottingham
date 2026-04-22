@@ -1,14 +1,11 @@
 # Documentation
 
-## Overview
-
-This directory contains supplemental documentation for the project.
+Extra docs for the project.
 
 ## Files
 
-- [`database_design.md`](database_design.md) - Entity-relationship
-  diagram, table-by-table justification of the normalised schema, and
-  the data-type / normal-form rationale.
-- [`software_design.md`](software_design.md) - Class diagram, end-to-end
-  pipeline diagram, module responsibilities, and notes on
-  reproducibility and what was deliberately omitted.
+- [`database_design.md`](database_design.md) - ER diagram,
+  table-by-table notes on why I split the data the way I did, and
+  the data-type choices.
+- [`software_design.md`](software_design.md) - class diagram,
+  pipeline flowchart and what each source file does.

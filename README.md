@@ -2,10 +2,10 @@
 
 # ZDAT1001 Assessment Part 2 - Extenuating Circumstances Analysis
 
-A small data-science portfolio project that ingests the anonymised
-University of Nottingham Extenuating Circumstances (EC) dataset into a
-normalised SQLite database, queries it with SQL, and produces a short
-written report supported by visualisations.
+A portfolio project that loads the anonymised University of
+Nottingham Extenuating Circumstances (EC) dataset into a normalised
+SQLite database, runs SQL queries on it, and writes a short report
+with visualisations.
 
 ## Contents
 
@@ -18,13 +18,14 @@ written report supported by visualisations.
 
 ## Overview
 
-The project is structured around four short Python modules that, in
-order: build a SQLite database from the supplied Excel workbook, run
-the four analytical SQL queries that answer the questions in
-[`REPORT.md`](REPORT.md), and save matching plots into [`img/`](img/).
+The code in `src/` has a few small Python files. Running
+`python src/main.py` does three things in order: build a SQLite
+database from the supplied Excel workbook, run the four SQL queries
+that answer the questions in [`REPORT.md`](REPORT.md), and save the
+matching plots into [`img/`](img/).
 
-Two design documents in [`doc/`](doc/) explain the database schema and
-the software architecture in more depth.
+There are two extra design docs in [`doc/`](doc/) that explain the
+database schema and the software structure in more detail.
 
 ## Project structure
 
@@ -62,8 +63,9 @@ nottingham/
 
 ## Setup
 
-The pipeline only needs Python 3.9+ and a handful of standard
-data-science libraries. Use a virtual environment to keep things tidy:
+You need Python 3.9 or later and a few standard libraries. I
+recommend a virtual environment so you don't mess up your system
+Python:
 
 ```bash
 python -m venv .venv
@@ -71,17 +73,18 @@ source .venv/bin/activate              # Windows: .venv\Scripts\activate
 pip install -r src/requirements.txt
 ```
 
-Then place the supplied spreadsheet (the file the assessment downloads
-as `Depersonalised EC .xlsx`) into the `data/` folder. The folder is
-created automatically by the pipeline if it does not exist.
+Then put the spreadsheet (the file that came with the assessment,
+called `Depersonalised EC .xlsx`) into the `data/` folder. The
+folder will be made automatically by the pipeline if it isn't there
+already.
 
 ```bash
 mkdir -p data
 mv "Depersonalised EC .xlsx" data/
 ```
 
-The data file is git-ignored on purpose - per the assessment brief
-large or sensitive datasets should not be committed.
+The data file is in `.gitignore` because the brief says not to
+commit datasets.
 
 ## How to run
 
@@ -91,25 +94,26 @@ From the project root:
 python src/main.py
 ```
 
-The script will:
+What the script does:
 
-1. Re-create every table defined in
+1. Re-creates every table in
    [`src/schema.sql`](src/schema.sql).
-2. Read the workbook with `openpyxl` and insert rows into the
-   normalised tables using `DataIngestor` (see
+2. Reads the workbook with `openpyxl` and inserts rows into the
+   tables using `DataIngestor` (see
    [`src/ingest.py`](src/ingest.py)).
-3. Run the four analytical SQL queries (`ECAnalyser` in
-   [`src/analysis.py`](src/analysis.py)) and save the matching PNGs
-   into [`img/`](img/).
-4. Print a summary of how many rows were loaded.
+3. Runs the four SQL queries in `ECAnalyser`
+   ([`src/analysis.py`](src/analysis.py)) and saves the matching
+   PNGs into [`img/`](img/).
+4. Prints a quick summary of how many rows were loaded.
 
-Useful flags:
+Flags:
 
-- `python src/main.py --skip-db` - keep the existing database, only
-  redo the plots.
-- `python src/main.py --skip-plots` - load the data but skip plotting.
+- `python src/main.py --skip-db` - keep the existing database and
+  just redo the plots.
+- `python src/main.py --skip-plots` - load the data but don't make
+  plots.
 
-To re-run the exploratory notebook (uses the same `Database` /
+To re-run the EDA notebook (uses the same `Database` and
 `ECAnalyser` classes):
 
 ```bash
@@ -118,9 +122,8 @@ jupyter nbconvert --to notebook --execute src/eda.ipynb --inplace
 
 ## Database design
 
-The full justification, ER diagram and table-by-table notes live in
-[`doc/database_design.md`](doc/database_design.md). The headline
-shape:
+The full write-up, ER diagram and per-table notes are in
+[`doc/database_design.md`](doc/database_design.md). Quick version:
 
 ```mermaid
 erDiagram
@@ -131,9 +134,9 @@ erDiagram
     claims   }|--|| claim_updates : "has admin trail"
 ```
 
-Six tables - three small dimensions (`courses`, `modules`, `outcomes`),
-one student dimension, one fact table (`claims`) and an associative
-table for the administrative timeline (`claim_updates`).
+Six tables: three small lookup tables (`courses`, `modules`,
+`outcomes`), one for students, one main table (`claims`), and one
+extra table (`claim_updates`) for the admin timeline.
 
 ## Where to find what
 

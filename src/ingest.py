@@ -1,7 +1,7 @@
 """
-ingest.py - read the EC spreadsheet and load it into the database.
+Reads the EC spreadsheet and loads it into the database.
 
-Only this file touches the xlsx. Everything else (analysis, plots) uses
+This is the only file that touches the xlsx - everything else uses
 SQL against the database that this script builds.
 """
 
@@ -51,7 +51,7 @@ def parse_outcome_code(label):
 
 
 class DataIngestor:
-    """Loads the EC spreadsheet and writes everything into the database."""
+    """Loads the spreadsheet into the database."""
 
     def __init__(self, xlsx_path):
         self.xlsx_path = xlsx_path

@@ -1,5 +1,5 @@
-"""Small helper class that wraps sqlite3 so the rest of the code
-doesn't have to deal with connection objects directly."""
+"""Small class that wraps the sqlite3 connection so the other files
+don't have to worry about it."""
 
 import sqlite3
 import pandas as pd
@@ -29,7 +29,7 @@ class Database:
         self.conn.commit()
 
     def executemany(self, sql, rows):
-        """Insert many rows at once (much faster than a loop)."""
+        """Insert lots of rows in one go. Faster than a loop."""
         self.conn.executemany(sql, rows)
         self.conn.commit()
 
