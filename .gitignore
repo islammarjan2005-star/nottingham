@@ -1,13 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,database,data,microsoftoffice,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,database,data,microsoftoffice,jupyternotebooks
 
-# Assessment dataset (per assessment brief: do not commit large/sensitive data)
+# Raw dataset (too large / sensitive to commit)
 /data/
 *.xlsx
 *.xlsm
-# Top-level zip and brief should not be committed either
-/dsda-zdat1001-2025-26-assessment-part-2-*.zip
-/ZDAT1001*.txt
 
 ### Data ###
 *.csv

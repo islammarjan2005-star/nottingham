@@ -1,5 +1,5 @@
 -- schema.sql
--- Tables for the EC portfolio assessment.
+-- Tables for the EC claims database.
 -- There are 6 tables: courses, modules, outcomes and students are the
 -- "dimension" tables, claims is the main table and claim_updates holds
 -- extra admin info per form.

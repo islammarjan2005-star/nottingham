@@ -10,7 +10,7 @@ IMG_DIR = PROJECT_ROOT / "img"
 SRC_DIR = PROJECT_ROOT / "src"
 
 # The spreadsheet file in the data folder (note the space in the name -
-# that's how the assessment download spells it).
+# that's how the source file is named).
 XLSX_FILENAME = "Depersonalised EC .xlsx"
 XLSX_PATH = DATA_DIR / XLSX_FILENAME
 DB_PATH = DATA_DIR / "ec_claims.db"

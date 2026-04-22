@@ -1,5 +1,5 @@
 """
-plots.py - plotting functions for the four assessment questions.
+plots.py - plotting functions for the four analytical questions.
 
 Each function takes the DataFrame returned by analysis.py and saves
 a PNG into the img/ folder.

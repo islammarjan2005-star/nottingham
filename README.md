@@ -70,10 +70,9 @@ source .venv/bin/activate              # Windows: .venv\Scripts\activate
 pip install -r src/requirements.txt
 ```
 
-Then put the spreadsheet (the file that came with the assessment,
-called `Depersonalised EC .xlsx`) into the `data/` folder. The
-folder will be made automatically by the pipeline if it isn't there
-already.
+Then put the source spreadsheet (`Depersonalised EC .xlsx`) into
+the `data/` folder. The folder is created automatically by the
+pipeline if it isn't there already.
 
 ```bash
 mkdir -p data

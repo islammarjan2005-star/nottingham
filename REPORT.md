@@ -58,9 +58,10 @@ University holidays.
 
 ## Question 4 - does the outcome differ by type of assessment?
 
-*This is my additional question, beyond the four examples in the
-brief.* A count of `(type_of_assessment, outcome_category)` shown
-as a volume chart and an approval-rate chart.
+*This is my additional analytical question, chosen in addition to
+the suggested example questions.* A count of
+`(type_of_assessment, outcome_category)` shown as a volume chart
+and an approval-rate chart.
 
 ![Q4 volume](img/q4_volume_by_assessment_type.png)
 
