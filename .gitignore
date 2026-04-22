@@ -5,6 +5,9 @@
 /data/
 *.xlsx
 *.xlsm
+# Any reference zips or top-level text notes kept locally only
+*.zip
+/*.txt
 
 ### Data ###
 *.csv
