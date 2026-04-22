@@ -32,5 +32,5 @@ python src/main.py
 ```
 
 This rebuilds `data/ec_claims.db` from
-`data/Depersonalised EC .xlsx` and re-generates every PNG in
+`data/Depersonalised EC Tracker 2020-2021.xlsx` and re-generates every PNG in
 `../img/`.

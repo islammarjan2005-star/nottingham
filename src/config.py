@@ -11,7 +11,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 
 # The spreadsheet file in the data folder (note the space in the name -
 # that's how the source file is named).
-XLSX_FILENAME = "Depersonalised EC .xlsx"
+XLSX_FILENAME = "Depersonalised EC Tracker 2020-2021.xlsx"
 XLSX_PATH = DATA_DIR / XLSX_FILENAME
 DB_PATH = DATA_DIR / "ec_claims.db"
 SCHEMA_PATH = SRC_DIR / "schema.sql"
