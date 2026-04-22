@@ -155,9 +155,7 @@ state, so a class would add structure without benefit.
   turn. It is the only file that has the overall order of steps.
   
 - `eda.ipynb` - exploratory notebook containing rough plots I
-  used to decide which questions to take into the report. Its
-  presence with `plots.py` gives the clear EDA
-  vs stakeholder distinction.
+  used to decide which questions to take into the report.
 
 
 
