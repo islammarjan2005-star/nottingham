@@ -275,9 +275,8 @@ class DataIngestor:
         # Read the auto-generated course IDs back so we can use them
         # as foreign keys when we insert students.
         course_lookup = {}
-        for course_name, course_id in db.read_sql(
-            "SELECT course_name, course_id FROM courses"
-        ).values:
+        cursor = db.conn.execute("SELECT course_name, course_id FROM courses")
+        for course_name, course_id in cursor.fetchall():
             course_lookup[course_name] = course_id
 
         # ---- modules ------------------------------------------------

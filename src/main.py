@@ -94,8 +94,8 @@ def run_analyses_and_plots():
     print("Saving plots ...")
     paths = plot_all(results)
     for path in paths:
-        # Show the file path relative to the project root.
-        print(f"  wrote {path.relative_to(path.parents[1])}")
+        # Print just the filename so the output is short.
+        print(f"  wrote img/{path.name}")
 
     # Close the database.
     db.close()
