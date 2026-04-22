@@ -2,8 +2,7 @@
 
 # ZDAT1001 Assessment Part 2 - Extenuating Circumstances Analysis
 
-A portfolio project that loads the anonymised University of
-Nottingham Extenuating Circumstances (EC) dataset into a normalised
+A portfolio project that loads the UoN Extenuating Circumstances dataset into a 
 SQLite database, runs SQL queries on it, and writes a short report
 with visualisations.
 
@@ -20,7 +19,7 @@ with visualisations.
 
 The code in `src/` has a few small Python files. Running
 `python src/main.py` does three things in order: build a SQLite
-database from the supplied Excel workbook, run the four SQL queries
+database from the  Excel workbook, run the four SQL queries
 that answer the questions in [`REPORT.md`](REPORT.md), and save the
 matching plots into [`img/`](img/).
 
@@ -63,9 +62,7 @@ nottingham/
 
 ## Setup
 
-You need Python 3.9 or later and a few standard libraries. I
-recommend a virtual environment so you don't mess up your system
-Python:
+
 
 ```bash
 python -m venv .venv
@@ -83,8 +80,7 @@ mkdir -p data
 mv "Depersonalised EC .xlsx" data/
 ```
 
-The data file is in `.gitignore` because the brief says not to
-commit datasets.
+The data file is in `.gitignore`.
 
 ## How to run
 
@@ -98,13 +94,16 @@ What the script does:
 
 1. Re-creates every table in
    [`src/schema.sql`](src/schema.sql).
-2. Reads the workbook with `openpyxl` and inserts rows into the
+   
+3. Reads the workbook with `openpyxl` and inserts rows into the
    tables using `DataIngestor` (see
    [`src/ingest.py`](src/ingest.py)).
-3. Runs the four SQL queries in `ECAnalyser`
+   
+5. Runs the four SQL queries in `ECAnalyser`
    ([`src/analysis.py`](src/analysis.py)) and saves the matching
    PNGs into [`img/`](img/).
-4. Prints a quick summary of how many rows were loaded.
+   
+7. Prints a quick summary of how many rows were loaded.
 
 Flags:
 
